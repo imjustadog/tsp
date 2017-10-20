@@ -151,6 +151,7 @@ class tsp():
         self.__running = False
         self.__lock.release()
         self.nodes = []  # 节点坐标
+        self.lines = []
         for i in range(len(distance_x)):
             # 在画布上随机初始坐标
             x = distance_x[i]
@@ -181,20 +182,23 @@ class tsp():
         self.a.set_title('Demo: Draw N Random Dot')
         self.canvas.show()
 
-    def stop(self, evt):
+    def stop(self):
         self.__lock.acquire()
         self.__running = False
         self.__lock.release()
 
     # 将节点按order顺序连线
     def line(self, order):
-        #self.f.clf()
+        if self.lines != []:
+            for l in self.lines:
+                l.pop(0).remove()
+        self.lines = []
         def line2(i1, i2):
             p1, p2 = self.nodes[i1], self.nodes[i2]
             x = [p1[0],p2[0]]
-            y = [p1[0],p2[0]]
-            z = [p1[1],p2[1]]
-            self.a.plot(x, y, z)
+            y = [p1[1],p2[1]]
+            z = [p1[2],p2[2]]
+            self.lines.append(self.a.plot(x, y, z))
             return i2
 
         # order[-1]为初始值
@@ -225,8 +229,6 @@ class tsp():
             # 更新画布
             self.canvas.show()
             self.iter += 1
-            if self.iter > 20:
-                break
 
     # 更新信息素
     def __update_pheromone_gragh(self):
@@ -258,7 +260,6 @@ if __name__ == '__main__':
     inputEntry.insert(0,'50')
     Button(root,text='画图',command=tsp_class.drawPic).grid(row=1,column=2,columnspan=5)
     Button(root, text='开始', command=tsp_class.search_path).grid(row=1, column=3, columnspan=5)
-    Button(root, text='停止', command=tsp_class.stop).grid(row=1, column=4, columnspan=5)
-
+    root.bind("s", tsp_class.stop)  # 停止搜索
     #启动事件循环
     root.mainloop()
