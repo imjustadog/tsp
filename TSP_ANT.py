@@ -21,6 +21,9 @@ import math
 (dest_num, ant_num) = (33,33)
 # 城市坐标
 
+# 迭代次数
+iteration = 300
+
 distance_graph = [[0.0 for col in xrange(dest_num)] for raw in xrange(dest_num)]
 pheromone_graph = [[1.0 for col in xrange(dest_num)] for raw in xrange(dest_num)]
 
@@ -146,10 +149,11 @@ class tsp():
         self.a = Axes3D(self.f)
 
         self.__lock = threading.RLock()  # 线程锁
-        self.__lock.acquire()
 
+        self.__lock.acquire()
         self.__running = False
         self.__lock.release()
+
         self.nodes = []  # 节点坐标
         self.lines = []
         for i in range(len(distance_x)):
@@ -186,6 +190,8 @@ class tsp():
         self.__lock.acquire()
         self.__running = False
         self.__lock.release()
+        self.root.destroy()
+        sys.exit()
 
     # 将节点按order顺序连线
     def line(self, order):
@@ -229,6 +235,9 @@ class tsp():
             # 更新画布
             self.canvas.show()
             self.iter += 1
+            if self.iter > iteration:
+                break
+
 
     # 更新信息素
     def __update_pheromone_gragh(self):
@@ -260,6 +269,6 @@ if __name__ == '__main__':
     inputEntry.insert(0,'50')
     Button(root,text='画图',command=tsp_class.drawPic).grid(row=1,column=2,columnspan=5)
     Button(root, text='开始', command=tsp_class.search_path).grid(row=1, column=3, columnspan=5)
-    root.bind("s", tsp_class.stop)  # 停止搜索
+    root.protocol("WM_DELETE_WINDOW", tsp_class.stop)
     #启动事件循环
     root.mainloop()
